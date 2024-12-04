@@ -60,10 +60,7 @@ def newAd():
     
     else:
         file = request.files['inputImagen']
-        RutaArchivo = os.path.dirname(__file__)
-        print(RutaArchivo)
-        upload_result = cloudinary.uploader.upload(RutaArchivo,public_id="shoes")
-        print(upload_result["secure_url"])
+        upload_result = cloudinary.uploader.upload(file)
 
         evento = {'nombre': request.form['inputNombre'],
                 'timestamp': request.form['inputDate'], 
@@ -79,16 +76,21 @@ def newAd():
 def editEvento(_id):
     
     if request.method == 'GET':
-
         evento = eventos.find_one({'_id': ObjectId(_id)})
         return render_template('edit.html', evento = evento)
     
     else:
-
+        
         evento = {'nombre': request.form['inputNombre'],
                 'timestamp': request.form['inputTimestamp'], 
                 'lugar': request.form['inputLugar'],
                 }
+        
+        file = request.files['inputImagen']
+        if file:
+            upload_result = cloudinary.uploader.upload(file)
+            evento['imagen'] = upload_result["secure_url"]
+
         eventos.update_one({'_id': ObjectId(_id) }, { '$set': evento })    
 
         return redirect(url_for('showEventos'))
@@ -108,8 +110,6 @@ def showEvento(_id):
     
     evento = eventos.find_one({'_id': ObjectId(_id)})
     return render_template('show.html', evento = evento)
-
-
 
 
 
