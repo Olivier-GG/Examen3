@@ -3,3 +3,4 @@ environs
 Flask
 pymongo
 dnspython
+cloudinary

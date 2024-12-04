@@ -4,9 +4,11 @@ import pymongo
 from bson import ObjectId
 from bson.json_util import dumps
 from datetime import datetime, timedelta
+import os
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
 
-
-#Para crear archivos docker ---> docker compose up --build
 
 app = Flask(__name__) #Inicializamos flask
 
@@ -20,54 +22,92 @@ clienteBD = pymongo.MongoClient(uri) #Conectamos el cliente a la base de datos
 
 db = clienteBD.ExamenFrontend
 
-ads = db.ads
+eventos = db.eventos
+
+#configuracion de cloudinary
+cloudinary.config( 
+    cloud_name = "dldq8py5w", 
+    api_key = "639814948327696", 
+    api_secret = "gCHw-Mz0hg7R3I5BMTyKKYIab8s", 
+    secure=True
+)
+
 
 @app.route('/prueba', methods=['GET'])
 def get_prueba():
-   
-    return "prueba"
+    upload_result = cloudinary.uploader.upload("https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",public_id="shoes")
+    print(upload_result["secure_url"])
+
+    return render_template('/OAuth-master/googleOAuth/index.html')
 
 
 
 
+
+#Mostrar todos los eventos
 @app.route('/', methods=['GET'])
-def showAds():
+def showEventos():
     
-    return render_template('ads.html', ads = list(ads.find().sort('date',pymongo.DESCENDING)))
+    return render_template('eventos.html', eventos = list(eventos.find().sort('timestamp',pymongo.DESCENDING)))
     
+
+#Añadir un nuevo evento
 @app.route('/new', methods = ['GET', 'POST'])
 def newAd():
 
-    if request.method == 'GET' :
+    if request.method == 'GET':
         return render_template('new.html')
+    
     else:
-        ad = {'author': request.form['inputAuthor'],
-              'text': request.form['inputText'], 
-              'priority': int(request.form['inputPriority']),
-              'date': datetime.now()
-             }
-        ads.insert_one(ad)
-        return redirect(url_for('showAds'))
+        file = request.files['inputImagen']
+        RutaArchivo = os.path.dirname(__file__)
+        print(RutaArchivo)
+        upload_result = cloudinary.uploader.upload(RutaArchivo,public_id="shoes")
+        print(upload_result["secure_url"])
 
+        evento = {'nombre': request.form['inputNombre'],
+                'timestamp': request.form['inputDate'], 
+                'lugar': request.form['inputDireccion'],
+                'imagen': upload_result["secure_url"]
+                }
+        eventos.insert_one(evento)
+        return redirect(url_for('showEventos'))
+
+
+#Editar un evento
 @app.route('/edit/<_id>', methods = ['GET', 'POST'])
-def editAd(_id):
+def editEvento(_id):
     
-    if request.method == 'GET' :
-        ad = ads.find_one({'_id': ObjectId(_id)})
-        return render_template('edit.html', ad = ad)
-    else:
-        ad = { 'author': request.form['inputAuthor'],
-               'text': request.form['inputText'],
-               'priority' : int(request.form['inputPriority'])
-             }
-        ads.update_one({'_id': ObjectId(_id) }, { '$set': ad })    
-        return redirect(url_for('showAds'))
+    if request.method == 'GET':
 
-@app.route('/delete/<_id>', methods = ['GET'])
-def deleteAd(_id):
+        evento = eventos.find_one({'_id': ObjectId(_id)})
+        return render_template('edit.html', evento = evento)
     
-    ads.delete_one({'_id': ObjectId(_id)})
-    return redirect(url_for('showAds'))
+    else:
+
+        evento = {'nombre': request.form['inputNombre'],
+                'timestamp': request.form['inputTimestamp'], 
+                'lugar': request.form['inputLugar'],
+                }
+        eventos.update_one({'_id': ObjectId(_id) }, { '$set': evento })    
+
+        return redirect(url_for('showEventos'))
+
+
+#Borrar un evento
+@app.route('/delete/<_id>', methods = ['GET'])
+def deleteEvento(_id):
+    
+    eventos.delete_one({'_id': ObjectId(_id)})
+    return redirect(url_for('showEventos'))
+
+
+#Mostrar un evento
+@app.route('/show/<_id>', methods = ['GET'])
+def showEvento(_id):
+    
+    evento = eventos.find_one({'_id': ObjectId(_id)})
+    return render_template('show.html', evento = evento)
 
 
 
