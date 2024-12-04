@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Autenticación con Google y Firebase</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+
+    <body>
+        <!-- The core Firebase JS SDK is always required and must be listed first -->
+
+        <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+
+        <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+        <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
+        <!-- Add Firebase products that you want to use -->
+        <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
+        <!-- <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-firestore.js"></script> -->
+
+        <script>
+            // Your web app's Firebase configuration
+            var firebaseConfig = {
+                apiKey: "*** INSERT HERE YOUR API KEY, e.g. AIza(...)",
+                authDomain: "*** INSERT HERE YOUR AUTH DOMAIN, e.g. dazzling-trail-798.firebaseapp.com",
+            };
+ 
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            
+            var provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().languageCode = 'es';
+            // To apply the default browser preference instead of explicitly setting it.
+            // firebase.auth().useDeviceLanguage();
+        </script>    
+        
+        <script>
+            function signIn() {
+                firebase.auth().signInWithPopup(provider).then(function(result) {
+                // This gives you a Google Access Token. You can use it to access the Google API.
+                var token = result.credential.accessToken;
+                // The signed-in user info. More info: https://firebase.google.com/docs/reference/js/firebase.User
+                var user = result.user;
+                console.log('User signed in. ID : ' + user.uid + ', email: ' + user.email);
+                console.log('Photo URL: ' + user.photoURL);
+                console.log('ID token' + token);
+            }).catch(function(error) {
+                // Handle Errors here.
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                // The email of the user's account used.
+                var email = error.email;
+                // The firebase.auth.AuthCredential type that was used.
+                var credential = error.credential;
+                console.log('An error happened' + errorMessage);
+                });
+            }
+            
+            function signOut() {
+                firebase.auth().signOut().then(function() {
+                    console.log('User signed out.');
+                }).catch(function(error) {
+                    console.log('An error happened');
+                });
+            }
+        </script>
+        
+        <h3>Google Firebase Auth</h3>
+        
+        <p><a href="#" onclick="signIn();">Sign in</a></p>   
+        <p><a href="#" onclick="signOut();">Sign out</a></p>
+
+    </body>
+</html>

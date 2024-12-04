@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Muestra un mapa a partir de una direccion (Geocoding)</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <script>
+        
+            var xhttp;
+
+            function getMessage() {
+                xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = handleResponse;
+                
+                var lugar = document.getElementById("lugar").value;
+                
+                var url = "http://nominatim.openstreetmap.org/search?q=" + lugar + 
+                          "&format=json&addressdetails=1";    
+         
+          //    Alternativamente, podemos usar MapQuest
+          // 
+          //    var url = "http://open.mapquestapi.com/nominatim/v1/search.php?q=" + lugar +
+          //               "&format=json&key=<PONER AQUI LA API KEY>";
+        
+                console.log(url);
+                xhttp.open("GET", url, true);
+                xhttp.send(null);
+                
+            }
+            function handleResponse() {
+                 
+                if (xhttp.readyState == 4 && xhttp.status == 200) {
+                   
+                  var response = xhttp.responseText;
+                  
+                  var texto = JSON.parse(response);
+                  console.log(texto);  
+                  
+                  console.log("Coordenadas: " + texto[0].lat + "," + texto[0].lon); // coords. del primer resultado
+                  
+                  window.location.href = "showMap2.html?lon=" + texto[0].lon + "&lat=" + texto[0].lat;
+
+               }
+           }
+        </script>
+    </head>
+    <body>
+        
+        Lugar:
+        <input type="text" id="lugar" size="50"/>
+        <input type="button" value="Hacer Geocoding" onclick="getMessage()"/>
+        
+    </body>
+</html>

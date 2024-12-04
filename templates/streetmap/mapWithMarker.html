@@ -1,0 +1,26 @@
+<html>
+<body>
+  <h2>ETSI Inform&aacute;tica - M&aacute;laga</h2>
+  
+  <div id="mapdiv"></div>
+  <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+  <script>
+    map = new OpenLayers.Map("mapdiv");
+    map.addLayer(new OpenLayers.Layer.OSM());
+
+    var lonLat = new OpenLayers.LonLat(-4.4780512, 36.7150865)
+          .transform(
+            new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+            map.getProjectionObject() // to Spherical Mercator Projection
+          );
+          
+    var markers = new OpenLayers.Layer.Markers( "Markers" );
+    markers.addMarker(new OpenLayers.Marker(lonLat));
+    
+    map.addLayer(markers);
+    
+    var zoom=16;
+    
+    map.setCenter(lonLat, zoom);
+  </script>
+</body></html>

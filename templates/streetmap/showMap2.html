@@ -1,0 +1,35 @@
+<html>
+<body>
+  <h2>Muestra un mapa por coordenadas</h2>
+  
+  <div id="mapdiv"></div>
+  <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+  <script>
+    map = new OpenLayers.Map("mapdiv");
+    map.addLayer(new OpenLayers.Layer.OSM());
+    
+    
+    // var lon = location.search.split('lon=')[1];   // Toma los parametros de la URL
+    // var lat = location.search.split('lat=')[1];
+    
+    var lon = /lon=([^&]+)/.exec(location.search)[1]; 
+    var lat = /lat=([^&]+)/.exec(location.search)[1]; 
+
+    console.log("lon: " + lon + "lat: " + lat);
+    
+    var lonLat = new OpenLayers.LonLat(lon,lat)
+          .transform(
+            new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+            map.getProjectionObject() // to Spherical Mercator Projection
+          );
+          
+    var markers = new OpenLayers.Layer.Markers( "Markers" );
+    markers.addMarker(new OpenLayers.Marker(lonLat));
+    
+    map.addLayer(markers);
+    
+    var zoom=10;
+    
+    map.setCenter(lonLat, zoom);
+  </script>
+</body></html>

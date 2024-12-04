@@ -1,0 +1,43 @@
+<html>
+<body>
+  <h2>Muestra un mapa a partir de sus coordenadas (Lat,Lon)</h2>
+  
+  Latitud:
+        <input type="number" id="lat" size="10"/>
+        
+  Longitud:
+        <input type="number" id="lon" size="10"/>
+        
+        <input type="button" value="Ir al lugar!" onclick="getMessage()"/>
+        
+  <br/><br/><br/>
+        
+
+  
+  <div id="mapdiv"></div>
+  <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+  <script>
+            var xhttp;
+            function getMessage() {
+                var lon = document.getElementById("lon").value;
+                var lat = document.getElementById("lat").value;
+                map = new OpenLayers.Map("mapdiv");
+                map.addLayer(new OpenLayers.Layer.OSM());
+
+                var lonLat = new OpenLayers.LonLat(lon,lat)
+                  .transform(
+                        new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                        map.getProjectionObject() // to Spherical Mercator Projection
+                    );
+          
+                var markers = new OpenLayers.Layer.Markers( "Markers" );
+                markers.addMarker(new OpenLayers.Marker(lonLat));
+    
+                map.addLayer(markers);
+    
+                var zoom=6;
+    
+                map.setCenter(lonLat, zoom);
+            }
+  </script>
+</body></html>
