@@ -49,7 +49,7 @@ app.secret_key = "" # make sure this matches with that's in client_secret.json
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
-GOOGLE_CLIENT_ID = "172801514922-vr1u0go6m1l8cuditgmlq42jesumc7lo.apps.googleusercontent.com"
+GOOGLE_CLIENT_ID = ""
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 
 flow = Flow.from_client_secrets_file(
