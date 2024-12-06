@@ -31,6 +31,7 @@ clienteBD = pymongo.MongoClient(uri) #Conectamos el cliente a la base de datos
 db = clienteBD.ExamenFrontend
 
 eventos = db.eventos
+log = db.log
 
 #configuracion de cloudinary
 cloudinary.config( 
@@ -89,6 +90,9 @@ def callback():
     session["google_id"] = id_info.get("sub")
     session["name"] = id_info.get("name")
     session["email"] = id_info.get("email")
+
+    log.insert_one({"token": credentials._id_token, "usuario": id_info.get("email"), "timestamp": id_info.get("iat"), "caducidad": id_info.get("exp")})
+
     return redirect("/")
 
 
@@ -98,29 +102,11 @@ def logout():
     return redirect("/")
 
 
-def login_is_required(function):
-    def wrapper(*args, **kwargs):
-        if "google_id" not in session:
-            return abort(401)  # Authorization required
-        else:
-            return function()
-
-    return wrapper
-
 def SesionIniciada():
     if "email" in session and session["email"] is not None:
         return True
     else:
         return False
-
-@app.route("/protected_area")
-def protected_area():
-    if "email" in session and session["email"] is not None:
-        return "Hello {session['email']}! <br/> <a href='/logout'><button>Logout</button></a>"
-    else:
-        return "Hello World! <br/> <a href='/login'><button>Login with Google</button></a>"
-
-
 
 
 
