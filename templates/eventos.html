@@ -93,43 +93,46 @@
   <br>
   <br>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js"></script>
-  <script>
-            var eventos = {{ eventos | tojson }};
-            var xhttp;
-            function getMessage() {
-                var lon = eventos[0].lon;
-                var lat = eventos[0].lat;
-                map = new OpenLayers.Map("mapdiv");
-                map.addLayer(new OpenLayers.Layer.OSM());
+<script>
+    var eventos = {{ eventos | tojson }};
 
-                var lonLat = new OpenLayers.LonLat(lon,lat)
-                  .transform(
-                        new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
-                        map.getProjectionObject() // to Spherical Mercator Projection
-                    );
-          
-                var markers = new OpenLayers.Layer.Markers( "Markers" );
+    function getMessage() {
+        if (!Array.isArray(eventos) || eventos.length === 0) {
+            console.error("No valid events data available");
+            return;
+        }
 
-                var zoom=10;
-    
-                map.setCenter(lonLat, zoom);
+        var map = new OpenLayers.Map("mapdiv");
+        map.addLayer(new OpenLayers.Layer.OSM());
+
+        var bounds = new OpenLayers.Bounds();
+        var markers = new OpenLayers.Layer.Markers("Markers");
+        map.addLayer(markers);
+
+        eventos.forEach(function(evento) {
+            if (evento.lat && evento.lon) {
+                var lonLat = new OpenLayers.LonLat(evento.lon, evento.lat).transform(
+                    new OpenLayers.Projection("EPSG:4326"),
+                    map.getProjectionObject()
+                );
                 markers.addMarker(new OpenLayers.Marker(lonLat));
-                map.addLayer(markers);
-
-                eventos.forEach(function(evento) {
-                   if(evento.lat && evento.lon){
-                        var lonLat = new OpenLayers.LonLat(evento.lon,evento.lat)
-                          .transform(
-                                new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
-                                map.getProjectionObject() // to Spherical Mercator Projection
-                            );
-                        markers.addMarker(new OpenLayers.Marker(lonLat));
-                    }
-                });
-    
-                
+                bounds.extend(lonLat);
             }
-  </script>
+        });
+
+        // Center and zoom the map to show all markers
+        map.zoomToExtent(bounds);
+    }
+</script>
+
+<div id="mapdiv"></div>
+<style>
+    #mapdiv {
+        width: 100%;
+        height: 500px;
+    }
+</style>
+
 
 <script type="text/javascript">
     window.onload = function() {
