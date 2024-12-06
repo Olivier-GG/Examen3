@@ -35,8 +35,8 @@ eventos = db.eventos
 #configuracion de cloudinary
 cloudinary.config( 
     cloud_name = "dldq8py5w", 
-    api_key = "639814948327696", 
-    api_secret = "gCHw-Mz0hg7R3I5BMTyKKYIab8s", 
+    api_key = "", 
+    api_secret = "", 
     secure=True
 )
 
