@@ -55,7 +55,8 @@ client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret
 flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
     scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
-    redirect_uri="https://examen3-two.vercel.app/callback" #Para verlo a nivel local
+    #redirect_uri="https://examen3-two.vercel.app/callback" #Para verlo en vercel
+    redirect_uri="http://localhost:8000/callback" #Para verlo a nivel local
 )
 
 
@@ -126,14 +127,6 @@ def protected_area():
 
 
 #Codigo CRUD
-
-@app.route('/prueba', methods=['GET'])
-def get_prueba():
-    upload_result = cloudinary.uploader.upload("https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",public_id="shoes")
-    print(upload_result["secure_url"])
-
-    return render_template('/OAuth-master/googleOAuth/index.html')
-
 
 #Mostrar todos los eventos
 @app.route('/', methods=['GET'])
@@ -270,11 +263,6 @@ def filtrar():
         mapa = False
 
     return render_template('eventos.html', eventos = listaEventos, logueado = SesionIniciada(), mapa = mapa)
-
-
-@app.route('/prueba2', methods = ['GET'])
-def prueba():
-    return render_template('/streetmap/showMap.html')
 
 
 

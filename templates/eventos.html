@@ -32,7 +32,7 @@
             <thead>
             <th>Nombre</th>
             <th>Fecha</th>
-            <th>Lugar</th>
+            <th>Organizador</th>
             <th>Mostrar</th>
             <th>Editar</th>
             <th>Borrar</th>
@@ -42,7 +42,7 @@
             <tr>
                 <td>{{ x.nombre }}</td>
                 <td>{{ x.timestamp }}</td>
-                <td>{{ x.lugar }}</td>
+                <td>{{ x.organizador }}</td>
                 <td><a class="btn btn-success" href="/show/{{x._id}}">Mostrar </a></td>
                 <td><a class="btn btn-warning" href="/edit/{{x._id}}">Editar </a></td>
                 <td><a class="btn btn-danger" href ="/delete/{{ x._id }}">Eliminar</a></td>
