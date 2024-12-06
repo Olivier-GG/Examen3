@@ -4,3 +4,8 @@ Flask
 pymongo
 dnspython
 cloudinary
+google-auth
+google-auth-oauthlib
+requests
+requests-oauthlib
+geopy
