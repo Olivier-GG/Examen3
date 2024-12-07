@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, redirect, url_for, render_template, session, abort
+from flask import Flask, jsonify, request, redirect, url_for, render_template, session, abort, flash
 from environs import Env
 import pymongo
 from bson import ObjectId
@@ -121,6 +121,7 @@ def showEventos():
     listaEventos = list(eventos.find().sort('timestamp',pymongo.DESCENDING))
     for e in listaEventos:
         e['_id'] = str(e['_id'])
+        e['timestamp'] = datetime.fromtimestamp(e['timestamp'])
 
     return render_template('eventos.html', eventos = listaEventos, logueado = SesionIniciada(), mapa = False)
     
@@ -136,17 +137,20 @@ def newAd():
         
         else:
             location = geolocator.geocode(request.form['inputDireccion']) 
+            input_date_str = request.form['inputDate']
+            input_date = datetime.strptime(input_date_str, '%Y-%m-%d')
+            timestamp = input_date.timestamp()
 
             if location is None:
 
                 evento = {'nombre': request.form['inputNombre'],
-                        'timestamp': request.form['inputDate'], 
+                        'timestamp':  timestamp, 
                         'lugar': request.form['inputDireccion'],
                         'organizador': session["email"]
                         }
             else:
                 evento = {'nombre': request.form['inputNombre'],
-                        'timestamp': request.form['inputDate'], 
+                        'timestamp': timestamp, 
                         'lugar': request.form['inputDireccion'],
                         'lat': location.latitude,
                         'lon': location.longitude,
@@ -171,35 +175,46 @@ def editEvento(_id):
     
     if SesionIniciada():
 
-        if request.method == 'GET':
-            evento = eventos.find_one({'_id': ObjectId(_id)})
-            return render_template('edit.html', evento = evento, logueado = SesionIniciada())
-        
-        else:   
-            location = geolocator.geocode(request.form['inputDireccion']) 
+        if session["email"] == eventos.find_one({'_id': ObjectId(_id)})['organizador']:
 
-            if location is None:
+            if request.method == 'GET':
+                evento = eventos.find_one({'_id': ObjectId(_id)})
+                evento['_id'] = str(evento['_id'])
+                evento['timestamp'] = datetime.fromtimestamp(evento['timestamp'])
+                return render_template('edit.html', evento = evento, logueado = SesionIniciada())
+            
+            else:   
+                location = geolocator.geocode(request.form['inputDireccion']) 
+                location = geolocator.geocode(request.form['inputDireccion']) 
+                input_date_str = request.form['inputDate']
+                input_date = datetime.strptime(input_date_str, '%Y-%m-%d')
+                timestamp = input_date.timestamp()
 
-                evento = {'nombre': request.form['inputNombre'],
-                        'timestamp': request.form['inputDate'], 
-                        'lugar': request.form['inputDireccion'],
-                        }
-            else:
-                evento = {'nombre': request.form['inputNombre'],
-                        'timestamp': request.form['inputDate'], 
-                        'lugar': request.form['inputDireccion'],
-                        'lat': location.latitude,
-                        'lon': location.longitude,
-                        }
-            file = request.files['inputImagen']
-            if file:
-                upload_result = cloudinary.uploader.upload(file)
-                evento['imagen'] = upload_result["secure_url"]
+                if location is None:
 
-            eventos.update_one({'_id': ObjectId(_id) }, { '$set': evento })    
+                    evento = {'nombre': request.form['inputNombre'],
+                            'timestamp': timestamp, 
+                            'lugar': request.form['inputDireccion'],
+                            }
+                else:
+                    evento = {'nombre': request.form['inputNombre'],
+                            'timestamp': timestamp, 
+                            'lugar': request.form['inputDireccion'],
+                            'lat': location.latitude,
+                            'lon': location.longitude,
+                            }
+                file = request.files['inputImagen']
+                if file:
+                    upload_result = cloudinary.uploader.upload(file)
+                    evento['imagen'] = upload_result["secure_url"]
 
+                eventos.update_one({'_id': ObjectId(_id) }, { '$set': evento })    
+
+                return redirect(url_for('showEventos'))
+
+        else:
+            flash("No tienes permisos para editar este evento", "error")
             return redirect(url_for('showEventos'))
-        
     else:
         return redirect(url_for('login'))
 
@@ -208,8 +223,13 @@ def editEvento(_id):
 @app.route('/delete/<_id>', methods = ['GET'])
 def deleteEvento(_id):
     if SesionIniciada():
-        eventos.delete_one({'_id': ObjectId(_id)})
-        return redirect(url_for('showEventos'))
+        if session["email"] == eventos.find_one({'_id': ObjectId(_id)})['organizador']:
+            
+            eventos.delete_one({'_id': ObjectId(_id)})
+            return redirect(url_for('showEventos'))
+        else:
+            flash("No tienes permisos para editar este evento", "error")
+            return redirect(url_for('showEventos'))
     else:
         return redirect(url_for('login'))
 
@@ -219,6 +239,8 @@ def deleteEvento(_id):
 def showEvento(_id):
     
     evento = eventos.find_one({'_id': ObjectId(_id)})
+    evento['_id'] = str(evento['_id'])
+    evento['timestamp'] = datetime.fromtimestamp(evento['timestamp'])
     return render_template('show.html', evento = evento, logueado = SesionIniciada())
 
 
@@ -231,6 +253,7 @@ def filtrar():
 
     for e in lista:
         e['_id'] = str(e['_id'])
+        e['timestamp'] = datetime.fromtimestamp(e['timestamp'])
 
     location = geolocator.geocode(direccion) 
 
@@ -242,6 +265,7 @@ def filtrar():
         for e in lista:
             if (e['lat'] - location.latitude < 0.2 and e['lat'] - location.latitude > -0.2) and (e['lon'] - location.longitude < 0.2 and e['lon'] - location.longitude > -0.2):
                 e['_id'] = str(e['_id'])
+                e['timestamp'] = datetime.fromtimestamp(e['timestamp'])
                 listaEventos.append(e)
 
     mapa = True
