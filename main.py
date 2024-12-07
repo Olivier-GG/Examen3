@@ -121,7 +121,7 @@ def showEventos():
     listaEventos = list(eventos.find().sort('timestamp',pymongo.DESCENDING))
     for e in listaEventos:
         e['_id'] = str(e['_id'])
-        e['timestamp'] = datetime.fromtimestamp(e['timestamp'])
+        e['timestamp'] = datetime.fromtimestamp(e['timestamp']).date()
 
     return render_template('eventos.html', eventos = listaEventos, logueado = SesionIniciada(), mapa = False)
     
@@ -180,7 +180,7 @@ def editEvento(_id):
             if request.method == 'GET':
                 evento = eventos.find_one({'_id': ObjectId(_id)})
                 evento['_id'] = str(evento['_id'])
-                evento['timestamp'] = datetime.fromtimestamp(evento['timestamp'])
+                evento['timestamp'] = datetime.fromtimestamp(evento['timestamp']).date()
                 return render_template('edit.html', evento = evento, logueado = SesionIniciada())
             
             else:   
@@ -240,7 +240,7 @@ def showEvento(_id):
     
     evento = eventos.find_one({'_id': ObjectId(_id)})
     evento['_id'] = str(evento['_id'])
-    evento['timestamp'] = datetime.fromtimestamp(evento['timestamp'])
+    evento['timestamp'] = datetime.fromtimestamp(evento['timestamp']).date()
     return render_template('show.html', evento = evento, logueado = SesionIniciada())
 
 
@@ -253,7 +253,7 @@ def filtrar():
 
     for e in lista:
         e['_id'] = str(e['_id'])
-        e['timestamp'] = datetime.fromtimestamp(e['timestamp'])
+        e['timestamp'] = datetime.fromtimestamp(e['timestamp']).date()
 
     location = geolocator.geocode(direccion) 
 
@@ -264,8 +264,6 @@ def filtrar():
     else:
         for e in lista:
             if (e['lat'] - location.latitude < 0.2 and e['lat'] - location.latitude > -0.2) and (e['lon'] - location.longitude < 0.2 and e['lon'] - location.longitude > -0.2):
-                e['_id'] = str(e['_id'])
-                e['timestamp'] = datetime.fromtimestamp(e['timestamp'])
                 listaEventos.append(e)
 
     mapa = True
