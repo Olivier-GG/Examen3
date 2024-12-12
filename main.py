@@ -56,8 +56,8 @@ client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret
 flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
     scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
-    #redirect_uri="https://examen3-two.vercel.app/callback" #Para verlo en vercel
-    redirect_uri="http://localhost:8000/callback" #Para verlo a nivel local
+    redirect_uri="https://examen3-two.vercel.app/callback" #Para verlo en vercel
+    #redirect_uri="http://localhost:8000/callback" #Para verlo a nivel local
 )
 
 
