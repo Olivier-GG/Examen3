@@ -46,7 +46,7 @@ geolocator = Nominatim(user_agent="mi_app_examen_frontend")
 
 #Configuracion Login Google
 
-app.secret_key = "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" # make sure this matches with that's in client_secret.json
+app.secret_key = "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" # asegurar que es la misma que en client_secret.json
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
@@ -56,8 +56,8 @@ client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret
 flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
     scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
-    redirect_uri="https://examen3-two.vercel.app/callback" #Para verlo en vercel
-    #redirect_uri="http://localhost:8000/callback" #Para verlo a nivel local
+    #redirect_uri="https://examen3-two.vercel.app/callback" #Para verlo en vercel
+    redirect_uri="http://localhost:8000/callback" #Para verlo a nivel local
 )
 
 
@@ -73,7 +73,7 @@ def callback():
     flow.fetch_token(authorization_response=request.url)
 
     if not session["state"] == request.args["state"]:
-        abort(500)  # State does not match!
+        abort(500) 
 
     credentials = flow.credentials
     request_session = requests.session()
@@ -271,6 +271,25 @@ def filtrar():
         mapa = False
 
     return render_template('eventos.html', eventos = listaEventos, logueado = SesionIniciada(), mapa = mapa)
+
+#Muestra todos los logs
+@app.route('/showLogs', methods = ['GET'])
+def showLog():
+    lista = list(log.find().sort('timestamp',pymongo.DESCENDING))
+
+    for e in lista:
+        e['_id'] = str(e['_id'])
+        e['timestamp'] = datetime.fromtimestamp(e['timestamp']).date()
+        e['caducidad'] = datetime.fromtimestamp(e['caducidad']).date()
+
+    return render_template('showLog.html', logs = lista)
+
+#Carga un mapa con un unico marcador
+@app.route('/unMapa', methods = ['GET'])
+def unMapa():
+    return render_template('MapaUnaLocalizacion.html', lat = 2 , lon = 2)
+
+
 
 
 

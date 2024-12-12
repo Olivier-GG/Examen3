@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-lg-12 text-center">
+        <h1>Log de eventos<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></h1>
+    </div>
+
+    <div class="col-md-12">
+        <div class="table-responsive" style="max-width: 100%; margin: 0 auto; overflow-x: auto;">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Timestamp</th>
+                        <th>Caducidad</th>
+                        <th>Token</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.usuario }}</td>
+                        <td>{{ log.timestamp }}</td>
+                        <td>{{ log.caducidad }}</td>
+                        <td>{{ log.token }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
