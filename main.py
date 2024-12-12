@@ -146,7 +146,9 @@ def newAd():
                 evento = {'nombre': request.form['inputNombre'],
                         'timestamp':  timestamp, 
                         'lugar': request.form['inputDireccion'],
-                        'organizador': session["email"]
+                        'organizador': session["email"],
+                        'lat': 'No se ha podido encontrar latitud',
+                        'lon': 'No se ha podido encontrar longitud',
                         }
             else:
                 evento = {'nombre': request.form['inputNombre'],
@@ -195,6 +197,8 @@ def editEvento(_id):
                     evento = {'nombre': request.form['inputNombre'],
                             'timestamp': timestamp, 
                             'lugar': request.form['inputDireccion'],
+                            'lat': 'No se ha podido encontrar latitud',
+                            'lon': 'No se ha podido encontrar longitud',
                             }
                 else:
                     evento = {'nombre': request.form['inputNombre'],
