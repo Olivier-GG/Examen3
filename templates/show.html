@@ -1,80 +1,103 @@
 {% extends "base.html" %}
 {% block content %}
-<!-- Bootstrap Core CSS -->
-<link href="../static/css/bootstrap.min.css" rel="stylesheet">
-<link href="../static/css/style.css" rel="stylesheet">
 
 <div class="row">
     <div class="col-lg-12 text-center">
-        <h1>Mostrar evento <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></h1>
+        <h1>Mapa de {{correo}} <span aria-hidden="true"></span></h1>
+
     </div>
 </div>
-<br>
-<br>
-<div class="row">
-    <div class="col-md-2"></div>
-    <div class="col-md-8">
+<br/>
+    
+<br/>
+<br/>
 
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Nombre</label>
 
-        <div class="col-sm-6">
-            {{ evento.nombre }}
-        </div>
-    </div>
-    <br>
-    <div class="form-group">
-        <label  class="col-sm-3 control-label">Timestamp</label>
+{% if marcadores != [] %}
+    <div id="mapdiv" style="width: 100%;
+    height: 500px; 
+    border: 1px solid black; "></div>
+{% else %}
+    <div>No hay marcadores para mostrar</div>
+{% endif %}
 
-        <div class="col-sm-6">
-            {{ evento.timestamp }}
-        </div>
-    </div>
-    <br>
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Lugar</label>
 
-        <div class="col-sm-6">
-            {{ evento.lugar }}
-        </div>
-    </div>
-    <br>
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Latitud</label>
 
-        <div class="col-sm-6">
-            {{ evento.lat }}
-        </div>
-    </div>
-    <br>
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Longitud</label>
+<br><br><br>
 
-        <div class="col-sm-6">
-            {{ evento.lon }}
-        </div>
-    </div>
-    <br>
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Organizador</label>
+<br/><br/><br/>
 
-        <div class="col-sm-6">
-            {{ evento.organizador }}
-        </div>
-    </div>
-    <br>
-    <div class="form-group">
-        <label class="col-sm-3 control-label">Imagen</label>
-
-        <div class="col-sm-6">
-            <img src="{{ evento.imagen }}" alt="No se ha cargado ninguna imagen" class="img-thumbnail">
-        </div>
-    </div>
-
-    </div>
-    <div class="col-md-2"></div>
+<div>
+    Imagenes añadidas con los marcadores -> <br><br>
 </div>
 
+{% for m in marcadores%}
+    {% if m.imagen %}
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-sm-6">
+                <img src="{{ m.imagen }}" class="img-thumbnail">
+            </div>
+            <div class="col-md-2"></div>
+        </div>
+    {% endif %}
+{% endfor %}
+<br><br>
 
+        
+  <br/><br/><br/>
+        
+
+
+  <br>
+  <br>
+  <br>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js"></script>
+  <script>
+            var eventos = {{ marcadores | tojson }};
+            var xhttp;
+            function getMessage() {
+                var lon = eventos[0].lon;
+                var lat = eventos[0].lat;
+                map = new OpenLayers.Map("mapdiv");
+                map.addLayer(new OpenLayers.Layer.OSM());
+
+                var lonLat = new OpenLayers.LonLat(lon,lat)
+                  .transform(
+                        new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                        map.getProjectionObject() // to Spherical Mercator Projection
+                    );
+          
+                var markers = new OpenLayers.Layer.Markers( "Markers" );
+
+                var zoom=4;
+    
+                map.setCenter(lonLat, zoom);
+                markers.addMarker(new OpenLayers.Marker(lonLat));
+                map.addLayer(markers);
+
+                eventos.forEach(function(evento) {
+                   if(evento.lat && evento.lon){
+                        var lonLat = new OpenLayers.LonLat(evento.lon,evento.lat)
+                          .transform(
+                                new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                                map.getProjectionObject() // to Spherical Mercator Projection
+                            );
+                        markers.addMarker(new OpenLayers.Marker(lonLat));
+                    }
+                });
+    
+                
+            }
+  </script>
+
+<script type="text/javascript">
+    window.onload = function() {
+        getMessage()
+    }
+</script>
 
 {% endblock content %}
+
+
+

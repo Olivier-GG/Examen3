@@ -31,6 +31,7 @@ clienteBD = pymongo.MongoClient(uri) #Conectamos el cliente a la base de datos
 db = clienteBD.ExamenFrontend
 
 marcadores = db.marcadores
+visitas = db.visitas
 
 #configuracion de cloudinary
 cloudinary.config( 
@@ -157,7 +158,17 @@ def newMarcador():
         return redirect(url_for('login'))
 
 
+@app.route('/buscar', methods = ['GET'])
+def buscar():
+    if SesionIniciada():
+        direccion = request.args.get('direccion')
+        listaMarcadores = list(marcadores.find({'email': direccion}))
+        for m in listaMarcadores:
+                m['_id'] = str(m['_id'])
 
+        return render_template('show.html', marcadores = listaMarcadores, correo = direccion)
+    else:
+        return redirect(url_for('login'))
 
 
 
