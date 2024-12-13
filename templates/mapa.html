@@ -3,7 +3,7 @@
 
 <div class="row">
     <div class="col-lg-12 text-center">
-        <h1>Eventos<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></h1>
+        <h1>Mapa <span aria-hidden="true"></span></h1>
 
     </div>
 </div>
@@ -14,7 +14,7 @@
     <div class="col-lg-12 text-center">
         <form action="/filtrar" method="GET" class="form-inline">
             <div class="form-group">
-                <label for="direccion">Buscar Dirección:</label>
+                <label for="direccion">Buscar Mapas(e-mail):</label>
                 <input type="text" class="form-control" id="direccion" name="direccion" placeholder="Ingrese una dirección">
             </div>
             <button type="submit" class="btn btn-primary">Buscar</button>
@@ -24,68 +24,53 @@
 <br/>
 <br/>
 
-{% if eventos|count > 0 %}
-<div class="row ">
-    <div class="col-md-2"></div>
-    <div class="col-md-8">
-        <table class="table">
-            <thead>
-            <th>Nombre</th>
-            <th>Fecha</th>
-            <th>Organizador</th>
-            <th>Mostrar</th>
-            <th>Editar</th>
-            <th>Borrar</th>
-            </thead>
-            <tbody>
-            {% for x in eventos %}
-            <tr>
-                <td>{{ x.nombre }}</td>
-                <td>{{ x.timestamp }}</td>
-                <td>{{ x.organizador }}</td>
-                <td><a class="btn btn-success" href="/show/{{x._id}}">Mostrar </a></td>
-                <td><a class="btn btn-warning" href="/edit/{{x._id}}">Editar </a></td>
-                <td><a class="btn btn-danger" href ="/delete/{{ x._id }}">Eliminar</a></td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div class="col-md-2"></div>
-    
-</div>
-<br>
-<br>
+
+{% if logueado %}
+    {% if marcadores != [] %}
+    <div>Mapa de : {{email}}</div><br><br>
+        <div id="mapdiv" style="width: 100%;
+        height: 500px; 
+        border: 1px solid black; "></div>
+    {% else %}
+        <div>No hay marcadores para mostrar</div>
+    {% endif %}
+
+
 
 {% else %}
-<div class="row">
-    <div class="col-lg-12 text-center">
-        <div class="col-md-3"></div>
-        <div class="col-md-6 bg-warning warning_mesagge">
-            <label>No existen eventos.</label>
-        </div>
-        <div class="col-md-3"></div>
-
-    </div>
-</div>
-
+<div>Es necesario iniciar sesion para poder ver tu mapa</div>
 {% endif %}
 
+
+<br><br><br>
+
+
 <a class="btn btn-primary" href="/new">
-    Crear evento
+    Añadir marcador
     <span style="margin-left: 5px;" class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
 </a>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="flash-messages">
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">{{ message }}</div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
+<br/><br/><br/>
+<br/><br/><br/>
+{% if logueado %}
 
+<div>
+    Imagenes añadidas con los marcadores -> <br><br>
+</div>
+
+{% for m in marcadores%}
+    {% if m.imagen %}
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-sm-6">
+                <img src="{{ m.imagen }}" class="img-thumbnail">
+            </div>
+            <div class="col-md-2"></div>
+        </div>
+    {% endif %}
+{% endfor %}
+
+{% endif %}
 
 <br><br>
 
@@ -93,19 +78,13 @@
   <br/><br/><br/>
         
 
-  {% if mapa %}
-  <div id="mapdiv" style="width: 100%;
-  height: 500px; 
-  border: 1px solid black; "></div>
-  {% endif %}
-
 
   <br>
   <br>
   <br>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js"></script>
   <script>
-            var eventos = {{ eventos | tojson }};
+            var eventos = {{ marcadores | tojson }};
             var xhttp;
             function getMessage() {
                 var lon = eventos[0].lon;
@@ -121,7 +100,7 @@
           
                 var markers = new OpenLayers.Layer.Markers( "Markers" );
 
-                var zoom=10;
+                var zoom=4;
     
                 map.setCenter(lonLat, zoom);
                 markers.addMarker(new OpenLayers.Marker(lonLat));
