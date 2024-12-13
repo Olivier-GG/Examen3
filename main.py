@@ -90,6 +90,7 @@ def callback():
     session["google_id"] = id_info.get("sub")
     session["name"] = id_info.get("name")
     session["email"] = id_info.get("email")
+    session["token"] = credentials._id_token
 
     return redirect("/")
 
@@ -163,10 +164,16 @@ def buscar():
     if SesionIniciada():
         direccion = request.args.get('direccion')
         listaMarcadores = list(marcadores.find({'email': direccion}))
+        visitas.insert_one({'email': session["email"], 'token': session["token"], 'fechaVisita': datetime.now().timestamp()})
         for m in listaMarcadores:
                 m['_id'] = str(m['_id'])
 
-        return render_template('show.html', marcadores = listaMarcadores, correo = direccion)
+        listaVisitas = list(visitas.find({'email': direccion}))
+        for v in listaVisitas:
+            v['_id'] = str(v['_id'])
+            v['fechaVisita'] = datetime.fromtimestamp(v['fechaVisita'])
+
+        return render_template('show.html', marcadores = listaMarcadores, correo = direccion, visitas = listaVisitas)
     else:
         return redirect(url_for('login'))
 

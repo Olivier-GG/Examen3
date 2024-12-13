@@ -45,7 +45,39 @@
 <br><br>
 
         
-  <br/><br/><br/>
+<br/><br/><br/>
+<div class="row">
+    <div class="col-lg-12 text-center">
+        <h1>Visitas<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></h1>
+
+    </div>
+</div>
+
+{% if visitas|count > 0 %}
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+        <table class="table">
+            <thead>
+            <th>Email</th>
+            <th>Fecha de Visita</th>
+            <th>Token</th>
+            </thead>
+            <tbody>
+            {% for v in visitas %}
+            <tr>
+                <td>{{ v.email }}</td>
+                <td>{{ v.fechaVisita }}</td>
+                <td>{{ v.token }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-2"></div>
+</div>
+
+{% endif %}
         
 
 
