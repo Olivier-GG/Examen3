@@ -168,7 +168,7 @@ def buscar():
         for m in listaMarcadores:
                 m['_id'] = str(m['_id'])
 
-        listaVisitas = list(visitas.find({'email': direccion}))
+        listaVisitas = list(visitas.find({'email': direccion}).sort('fechaVisita', -1))
         for v in listaVisitas:
             v['_id'] = str(v['_id'])
             v['fechaVisita'] = datetime.fromtimestamp(v['fechaVisita'])
